@@ -6,7 +6,7 @@
 #ifndef SRC_RAISIMGYMVECENV_HPP
 #define SRC_RAISIMGYMVECENV_HPP
 
-#include "Env.hpp"
+#include "Env.cpp"
 #include "omp.h"
 #include "Yaml.hpp"
 
@@ -256,3 +256,6 @@ class NormalSampler {
 };
 
 }
+
+
+#endif //SRC_RAISIMGYMVECENV_HPP
