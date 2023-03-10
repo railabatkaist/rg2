@@ -8,7 +8,7 @@ import platform
 import os
 
 
-class RaisimGymVecEnv:
+class VecEnv:
     def __init__(self, impl, normalize_ob=True, seed=0, clip_obs=10.0):
         if platform.system() == "Darwin":
             os.environ["KMP_DUPLICATE_LIB_OK"] = "True"

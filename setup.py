@@ -22,5 +22,8 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
+    package_data={
+        "": ["**.so"],
+    },
     include_package_data=True,
 )

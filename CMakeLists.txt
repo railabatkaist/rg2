@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 3.10)
 project(_rg2)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/bin)
-SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/bin)
-SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/rg2/bin)
+SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/rg2/bin)
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/rg2/bin)
 
 ######################
 ### help functions ###
@@ -78,10 +78,10 @@ find_package(raisim CONFIG REQUIRED)
 ### src and linking ###
 #######################
 
-set(RAISIMGYM_ENV_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/csrc)
+set(RAISIMGYM_ENV_DIR ${CMAKE_CURRENT_SOURCE_DIR}/rg2/csrc)
 
 
-pybind11_add_module(${PROJECT_NAME} src/csrc/binding.cpp src/csrc/Yaml.cpp)
+pybind11_add_module(${PROJECT_NAME} rg2/csrc/binding.cpp rg2/csrc/Yaml.cpp)
 target_link_libraries(${PROJECT_NAME} PRIVATE raisim::raisim ${Dependencies})
 target_include_directories(${PROJECT_NAME} PUBLIC ${EIGEN3_INCLUDE_DIRS} ${RAISIMGYM_ENV_DIR})
 target_compile_options(${PROJECT_NAME} PRIVATE -fPIC -O3 -flto -mno-avx2)
