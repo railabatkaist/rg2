@@ -1,3 +1,4 @@
 dist
 build
 src/bin/
+rg2.egg-info/

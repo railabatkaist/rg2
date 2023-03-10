@@ -9,10 +9,9 @@ import os
 
 
 class RaisimGymVecEnv:
-
-    def __init__(self, impl, normalize_ob=True, seed=0, clip_obs=10.):
+    def __init__(self, impl, normalize_ob=True, seed=0, clip_obs=10.0):
         if platform.system() == "Darwin":
-            os.environ['KMP_DUPLICATE_LIB_OK']='True'
+            os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
         self.normalize_ob = normalize_ob
         self.clip_obs = clip_obs
         self.wrapper = impl
