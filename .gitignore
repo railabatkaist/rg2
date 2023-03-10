@@ -1,4 +1,4 @@
 dist
 build
-src/bin/
+rg2/bin/_rg2*.so
 rg2.egg-info/
