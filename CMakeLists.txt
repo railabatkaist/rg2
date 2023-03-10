@@ -42,7 +42,7 @@ endif()
 
 if (UNIX AND NOT APPLE AND NOT ANDROID AND NOT WEBGL AND NOT WIN32)
     set(RAISIM_OS linux)
-    list(APPEND CMAKE_PREFIX_PATH ../raisimlib/raisim/${RAISIM_OS})
+    list(APPEND CMAKE_PREFIX_PATH ./extern/raisimLib/raisim/${RAISIM_OS})
 # elseif(APPLE)
 #     # on macOS "uname -m" returns the architecture (x86_64 or arm64)
 #     execute_process(
