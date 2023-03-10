@@ -1,5 +1,5 @@
-# RaiGym2 : versatile environment design space for learning based locomotion
-
+# RaiGym2 : Fast, Pythonic, Versatile environment design for learning based locomotion
+[WIP]
 ## Development
 
 ### Building C++ Gym Environment
