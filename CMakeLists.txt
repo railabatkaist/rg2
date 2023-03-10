@@ -42,7 +42,7 @@ endif()
 
 if (UNIX AND NOT APPLE AND NOT ANDROID AND NOT WEBGL AND NOT WIN32)
     set(RAISIM_OS linux)
-    list(APPEND CMAKE_PREFIX_PATH ./extern/raisimLib/raisim/${RAISIM_OS})
+    list(APPEND CMAKE_PREFIX_PATH rg2/${RAISIM_OS})
 # elseif(APPLE)
 #     # on macOS "uname -m" returns the architecture (x86_64 or arm64)
 #     execute_process(
@@ -82,6 +82,7 @@ set(RAISIMGYM_ENV_DIR ${CMAKE_CURRENT_SOURCE_DIR}/rg2/csrc)
 
 
 pybind11_add_module(${PROJECT_NAME} rg2/csrc/binding.cpp rg2/csrc/Yaml.cpp)
+set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 target_link_libraries(${PROJECT_NAME} PRIVATE raisim::raisim ${Dependencies})
 target_include_directories(${PROJECT_NAME} PUBLIC ${EIGEN3_INCLUDE_DIRS} ${RAISIMGYM_ENV_DIR})
 target_compile_options(${PROJECT_NAME} PRIVATE -fPIC -O3 -flto -mno-avx2)
