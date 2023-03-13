@@ -85,7 +85,7 @@ namespace raisim
       }
     }
 
-    void setInitConstants(Eigen::VectorXd gcInit, Eigen::VectorXd gvInit, Eigen::VectorXd actionMean, Eigen::VectorXd actionStd, Eigen::VectorXd pGain, Eigen::VectorXd dGain) final
+    void setInitConstants(Eigen::VectorXd gcInit, Eigen::VectorXd gvInit, Eigen::VectorXd actionMean, Eigen::VectorXd actionStd, Eigen::VectorXd pGain, Eigen::VectorXd dGain)
     {
       assert(gcInit.size() == gcDim_);
       assert(gvInit.size() == gvDim_);
@@ -104,7 +104,12 @@ namespace raisim
 
       // set PD gains
       robot_->setPdGains(pGain, dGain);
+    }
 
+    void init() final
+    {
+      robot_->setState(gcInit_, gvInit_);
+      updateObservation();
     }
 
     void reset() final
