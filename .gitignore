@@ -2,3 +2,4 @@ dist
 build
 rg2/bin/_rg2*.so
 rg2.egg-info/
+.vscode

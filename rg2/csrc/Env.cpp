@@ -22,14 +22,14 @@ class ENVIRONMENT : public RaisimGymEnv {
     world_ = std::make_unique<raisim::World>();
 
     /// add objects
-    anymal_ = world_->addArticulatedSystem(resourceDir_+"/anymal/urdf/anymal.urdf");
-    anymal_->setName("anymal");
-    anymal_->setControlMode(raisim::ControlMode::PD_PLUS_FEEDFORWARD_TORQUE);
+    robot_ = world_->addArticulatedSystem(resourceDir_);
+    robot_->setName("robot");
+    robot_->setControlMode(raisim::ControlMode::PD_PLUS_FEEDFORWARD_TORQUE);
     world_->addGround();
 
     /// get robot data
-    gcDim_ = anymal_->getGeneralizedCoordinateDim();
-    gvDim_ = anymal_->getDOF();
+    gcDim_ = robot_->getGeneralizedCoordinateDim();
+    gvDim_ = robot_->getDOF();
     nJoints_ = gvDim_ - 6;
 
     /// initialize containers
@@ -37,15 +37,15 @@ class ENVIRONMENT : public RaisimGymEnv {
     gv_.setZero(gvDim_); gv_init_.setZero(gvDim_);
     pTarget_.setZero(gcDim_); vTarget_.setZero(gvDim_); pTarget12_.setZero(nJoints_);
 
-    /// this is nominal configuration of anymal
+    /// this is nominal configuration of robot
     gc_init_ << 0, 0, 0.50, 1.0, 0.0, 0.0, 0.0, 0.03, 0.4, -0.8, -0.03, 0.4, -0.8, 0.03, -0.4, 0.8, -0.03, -0.4, 0.8;
 
     /// set pd gains
     Eigen::VectorXd jointPgain(gvDim_), jointDgain(gvDim_);
     jointPgain.setZero(); jointPgain.tail(nJoints_).setConstant(50.0);
     jointDgain.setZero(); jointDgain.tail(nJoints_).setConstant(0.2);
-    anymal_->setPdGains(jointPgain, jointDgain);
-    anymal_->setGeneralizedForce(Eigen::VectorXd::Zero(gvDim_));
+    robot_->setPdGains(jointPgain, jointDgain);
+    robot_->setGeneralizedForce(Eigen::VectorXd::Zero(gvDim_));
 
     /// MUST BE DONE FOR ALL ENVIRONMENTS
     obDim_ = 34;
@@ -62,23 +62,23 @@ class ENVIRONMENT : public RaisimGymEnv {
     rewards_.initializeFromConfigurationFile (cfg["reward"]);
 
     /// indices of links that should not make contact with ground
-    footIndices_.insert(anymal_->getBodyIdx("LF_SHANK"));
-    footIndices_.insert(anymal_->getBodyIdx("RF_SHANK"));
-    footIndices_.insert(anymal_->getBodyIdx("LH_SHANK"));
-    footIndices_.insert(anymal_->getBodyIdx("RH_SHANK"));
+    footIndices_.insert(robot_->getBodyIdx("LF_SHANK"));
+    footIndices_.insert(robot_->getBodyIdx("RF_SHANK"));
+    footIndices_.insert(robot_->getBodyIdx("LH_SHANK"));
+    footIndices_.insert(robot_->getBodyIdx("RH_SHANK"));
 
     /// visualize if it is the first environment
     if (visualizable_) {
       server_ = std::make_unique<raisim::RaisimServer>(world_.get());
       server_->launchServer();
-      server_->focusOn(anymal_);
+      server_->focusOn(robot_);
     }
   }
 
   void init() final { }
 
   void reset() final {
-    anymal_->setState(gc_init_, gv_init_);
+    robot_->setState(gc_init_, gv_init_);
     updateObservation();
   }
 
@@ -89,7 +89,7 @@ class ENVIRONMENT : public RaisimGymEnv {
     pTarget12_ += actionMean_;
     pTarget_.tail(nJoints_) = pTarget12_;
 
-    anymal_->setPdTarget(pTarget_, vTarget_);
+    robot_->setPdTarget(pTarget_, vTarget_);
 
     for(int i=0; i< int(control_dt_ / simulation_dt_ + 1e-10); i++){
       if(server_) server_->lockVisualizationServerMutex();
@@ -99,14 +99,14 @@ class ENVIRONMENT : public RaisimGymEnv {
 
     updateObservation();
 
-    rewards_.record("torque", anymal_->getGeneralizedForce().squaredNorm());
+    rewards_.record("torque", robot_->getGeneralizedForce().squaredNorm());
     rewards_.record("forwardVel", std::min(4.0, bodyLinearVel_[0]));
 
     return rewards_.sum();
   }
 
   void updateObservation() {
-    anymal_->getState(gc_, gv_);
+    robot_->getState(gc_, gv_);
     raisim::Vec<4> quat;
     raisim::Mat<3,3> rot;
     quat[0] = gc_[3]; quat[1] = gc_[4]; quat[2] = gc_[5]; quat[3] = gc_[6];
@@ -130,7 +130,7 @@ class ENVIRONMENT : public RaisimGymEnv {
     terminalReward = float(terminalRewardCoeff_);
 
     /// if the contact body is not feet
-    for(auto& contact: anymal_->getContacts())
+    for(auto& contact: robot_->getContacts())
       if(footIndices_.find(contact.getlocalBodyIndex()) == footIndices_.end())
         return true;
 
@@ -143,7 +143,7 @@ class ENVIRONMENT : public RaisimGymEnv {
  private:
   int gcDim_, gvDim_, nJoints_;
   bool visualizable_ = false;
-  raisim::ArticulatedSystem* anymal_;
+  raisim::ArticulatedSystem* robot_;
   Eigen::VectorXd gc_init_, gv_init_, gc_, gv_, pTarget_, pTarget12_, vTarget_;
   double terminalRewardCoeff_ = -10.;
   Eigen::VectorXd actionMean_, actionStd_, obDouble_;
