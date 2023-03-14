@@ -19,6 +19,9 @@ class RgConfig:
     def __init__(self, config: Optional[dict]):
         self.config = config
         
+        for k, v in config.items():
+            setattr(self, k, v)
+        
     def __hash__(self):
         if self._hash is None:
             self._hash = hash(self.as_yaml_str())
