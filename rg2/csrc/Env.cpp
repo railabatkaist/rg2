@@ -12,11 +12,11 @@
 namespace raisim
 {
 
-  class ENVIRONMENT : public RaisimGymEnv
+  class ENVIRONMENT : public gymEnv
   {
 
   public:
-    explicit ENVIRONMENT(const std::string &resourceDir, const Yaml::Node &cfg, bool visualizable) : RaisimGymEnv(resourceDir, cfg), visualizable_(visualizable), normDist_(0, 1)
+    explicit ENVIRONMENT(const std::string &resourceDir, const Yaml::Node &cfg, bool visualizable) : gymEnv(resourceDir, cfg), visualizable_(visualizable), normDist_(0, 1)
     {
 
       /// create world
