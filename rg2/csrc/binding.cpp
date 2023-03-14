@@ -14,7 +14,7 @@ using namespace raisim;
 int THREAD_COUNT = 1;
 
 #ifndef ENVIRONMENT_NAME
-  #define ENVIRONMENT_NAME gymEnv
+  #define ENVIRONMENT_NAME CVecEnv
 #endif
 
 PYBIND11_MODULE(RAISIMGYM_TORCH_ENV_NAME, m) {

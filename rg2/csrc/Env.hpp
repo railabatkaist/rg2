@@ -18,13 +18,13 @@
 namespace raisim {
 
 
-class gymEnv {
+class UnitEnv {
 
  public:
-  explicit gymEnv (std::string resourceDir, const Yaml::Node& cfg) :
+  explicit UnitEnv (std::string resourceDir, const Yaml::Node& cfg) :
       resourceDir_(std::move(resourceDir)), cfg_(cfg) { }
 
-  virtual ~gymEnv() { if(server_) server_->killServer(); };
+  virtual ~UnitEnv() { if(server_) server_->killServer(); };
 
   /////// implement these methods /////////
   virtual void init() = 0;

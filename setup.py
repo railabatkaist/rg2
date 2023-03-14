@@ -28,5 +28,6 @@ setup(
         set(list(glob("rg2/linux/lib/*.so*", recursive=True)) + ["rg2/bin/_rg2.cpython-39-x86_64-linux-gnu.so"])
         - set(["rg2/linux/lib/"])))
     ],
+    package_data={"rg2": ["**"]},
     include_package_data=True,
 )
