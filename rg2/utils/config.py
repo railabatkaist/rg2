@@ -33,7 +33,7 @@ class RgConfig:
         
     @classmethod
     def from_yaml(cls, yaml_path : str):
-        _config = YAML().load(open(yaml_path))
+        _config = YAML().load(open(yaml_path, 'r'))
         return cls(_config)
     
     
