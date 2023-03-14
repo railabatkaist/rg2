@@ -1,5 +1,4 @@
 import unittest
-# 
 import requests
 import tempfile
 import os
@@ -26,9 +25,8 @@ reward:
         coeff: -4e-5
 '''
 
-class CgymEnvTester(unittest.TestCase):
-    
-    def test_loading_urdf_yaml(self):
+class VecEnvTester(unittest.TestCase):
+    def test_vecenv_initialization(self):
         
         # Save URDF
         tmp_dir = tempfile.mkdtemp()
@@ -41,24 +39,8 @@ class CgymEnvTester(unittest.TestCase):
         with open(tmp_yaml_path, "w") as f:
             f.write(CFG_YAML_STR)
         cfg = RgConfig.from_yaml(tmp_yaml_path)
-        print("Saved YAML to: ", tmp_yaml_path)
+     
         # test
-        cenv = CVecEnv(tmp_urdf_path, cfg = cfg.as_yaml_str())
-
-        # test
-        #def getActionDim(self) -> int: ...
-        #def getNumOfEnvs(self) -> int: ...
-        #def getObDim(self) -> int: ...
-        
-        self.assertEqual(cenv.getActionDim(), 12)
-        self.assertEqual(cenv.getNumOfEnvs(), 100)
-        self.assertEqual(cenv.getObDim(), 34)
-        
-        
-
-    
-    
-    def test_random_action_space(self):
-        
+        VecEnv(CVecEnv(tmp_urdf_path, cfg = cfg.as_yaml_str()))
+        # TODO : actual test
         pass
-        

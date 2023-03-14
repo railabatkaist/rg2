@@ -50,6 +50,14 @@ bash cbuild.sh
 
 This will build C++ Gym and generate Stub to further make interface.
 
+## Test
+Run tests at `tests/` directory.
+
+```bash
+python -m unittest tests/test_cenv.py
+```
+
+
 ## TODO
 
 - [ ] Stable CI/CD package deployment using github actions
