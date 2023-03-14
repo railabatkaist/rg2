@@ -25,7 +25,7 @@ setup(
         "Operating System :: OS Independent",
     ],
     data_files=[("rg2", list(
-        set(list(glob("rg2/linux/lib/*.so*", recursive=True)) + ["rg2/bin/_rg2.cpython-38-x86_64-linux-gnu.so"])
+        set(list(glob("rg2/linux/lib/*.so*", recursive=True)) + ["rg2/bin/_rg2.cpython-39-x86_64-linux-gnu.so"])
         - set(["rg2/linux/lib/"])))
     ],
     include_package_data=True,
