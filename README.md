@@ -39,11 +39,16 @@ $ python -m twine upload dist/*
 ```
 ```
 
-Then, upload the package to PyPI.
-
-```bash
 
 This will generate a shared library at `src/bin`. For which, you can develop your own Python wrapper defined at `src/rg2`
+
+## Develope locally
+
+```bash
+bash cbuild.sh
+```
+
+This will build C++ Gym and generate Stub to further make interface.
 
 ## TODO
 
