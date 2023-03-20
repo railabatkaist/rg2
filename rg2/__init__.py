@@ -1,2 +1,3 @@
 from .bin import *
-from .gym import *
+from .gym.vecgym import *
+from .gym.singlegym import *
