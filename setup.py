@@ -7,10 +7,13 @@ from glob import glob
 
 print(list(glob("rg2/linux/lib/**", recursive=True)))
 
+cpver = os.environ.get("CPVER", None)
+cpver = cpver.replace(".", "") if cpver else None
+
 setup(
     name="rg2",
     py_modules=["rg2"],
-    version="0.0.6",
+    version="0.0.7",
     description="RaiGym2 : Fast, Pythonic, Versatile environment design for learning based locomotion",
     author="Simo Ryu",
     packages=find_packages(),
@@ -31,12 +34,11 @@ setup(
             list(
                 set(
                     list(glob("rg2/linux/lib/*.so*", recursive=True))
-                    + ["rg2/bin/_rg2.cpython-39-x86_64-linux-gnu.so"]
-                )
+                    + list(glob(f"rg2/bin/_rg2.cpython-{cpver}*"))
+                )   
                 - set(["rg2/linux/lib/"])
             ),
         )
     ],
-    package_data={"rg2": ["**"]},
     include_package_data=True,
 )
