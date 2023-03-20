@@ -1,8 +1,13 @@
+# Run this once on an environment, and run warm_build.sh afterwards.
+
 # iterate over all versions of python
 for version in 3.6 3.7 3.8 3.9 3.10
 do
     # create a new conda environment
-    conda create -n rg$version python=$version -y
+    if [ $1 = "start" ];
+        then
+            conda create -n rg$version python=$version -y
+    fi
     # activate the environment
     conda activate rg$version
     # remove the build directory
