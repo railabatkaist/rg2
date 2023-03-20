@@ -65,3 +65,51 @@ class Rg2Env(gym.Env):
 
     def close(self):
         self._cenv.close()
+
+
+from ..utils import RgConfig
+
+
+ANYMAL_CFG =  """
+render: True
+num_envs: 1
+eval_every_n: 10
+num_threads: 1
+simulation_dt: 0.0025
+control_dt: 0.01
+max_time: 4.0
+action_std: 0.3
+reward:
+    forwardVel:
+        coeff: 0.3
+    torque:
+        coeff: -4e-5
+"""
+
+class WebRgEnv(Rg2Env):
+
+    urdf_cfg_pairs = {
+        "anymal": (
+            "https://raw.githubusercontent.com/raisimTech/raisimLib/master/rsc/anymal/urdf/anymal.urdf",
+           ANYMAL_CFG,
+        )
+    }
+
+    def __init__(self, env_id: str = "anymal"):
+
+        # make dir to save urdf and cfg
+        os.makedirs("./gym", exist_ok=True)
+
+        # download urdf and cfg
+        import requests
+
+        urdf, cfg = self.urdf_cfg_pairs[env_id]
+        with open(f"./gym/{env_id}.urdf", "w") as f:
+            f.write(requests.get(urdf).text)
+        with open(f"./gym/{env_id}.yaml", "w") as f:
+            f.write(cfg)
+
+        # init
+        super().__init__(
+            f"./gym/{env_id}.urdf", RgConfig.from_yaml(f"./gym/{env_id}.yaml").as_yaml_str()
+        )
