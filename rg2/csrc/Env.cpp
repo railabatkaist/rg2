@@ -43,7 +43,7 @@ namespace raisim
       pTargetTail.setZero(nJoints_);
 
       /// this is nominal configuration of robot
-      //gcInit_ << 0, 0, 0.50, 1.0, 0.0, 0.0, 0.0, 0.03, 0.4, -0.8, -0.03, 0.4, -0.8, 0.03, -0.4, 0.8, -0.03, -0.4, 0.8;
+      gcInit_ << 0, 0, 0.50, 1.0, 0.0, 0.0, 0.0, 0.03, 0.4, -0.8, -0.03, 0.4, -0.8, 0.03, -0.4, 0.8, -0.03, -0.4, 0.8;
 
       /// set pd gains
       Eigen::VectorXd jointPgain(gvDim_), jointDgain(gvDim_);
@@ -93,7 +93,7 @@ namespace raisim
       assert(actionStd.size() == actionDim_);
       assert(pGain.size() == gvDim_);
       assert(dGain.size() == gvDim_);
-      
+
       // set gc and gv init value
       gcInit_ = gcInit;
       gvInit_ = gvInit;
@@ -160,9 +160,9 @@ namespace raisim
 
       obDouble_ << gc_[2],                 /// body height
           rot.e().row(2).transpose(),      /// body orientation
-          gc_.tail(nJoints_),                    /// joint angles
+          gc_.tail(nJoints_),              /// joint angles
           bodyLinearVel_, bodyAngularVel_, /// body linear&angular velocity
-          gv_.tail(nJoints_);                    /// joint velocity
+          gv_.tail(nJoints_);              /// joint velocity
     }
 
     void observe(Eigen::Ref<EigenVec> ob) final
