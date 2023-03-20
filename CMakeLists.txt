@@ -25,7 +25,6 @@ ENDMACRO()
 ####################
 
 set(Dependencies)
-
 add_subdirectory(extern/pybind11 pybind11)
 #list(APPEND CMAKE_PREFIX_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../thirdParty/Eigen3)
 find_package(Eigen3 CONFIG REQUIRED)
@@ -79,7 +78,6 @@ find_package(raisim CONFIG REQUIRED)
 #######################
 
 set(RAISIMGYM_ENV_DIR ${CMAKE_CURRENT_SOURCE_DIR}/rg2/csrc)
-
 
 pybind11_add_module(${PROJECT_NAME} rg2/csrc/binding.cpp rg2/csrc/Yaml.cpp)
 set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
