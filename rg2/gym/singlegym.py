@@ -8,10 +8,10 @@ from ..bin import CVecEnv
 
 
 class Rg2Env(gym.Env):
-    def __init__(self, urdf_path: str, cfg: str, seed: int = 0):
+    def __init__(self, urdf_path: str, cfgstr: str, seed: int = 0):
         super().__init__()
 
-        self._cenv = CVecEnv(urdf_path, cfg)
+        self._cenv = CVecEnv(urdf_path, cfgstr)
         self._cenv.setSeed(seed)
 
         self.num_obs = self._cenv.getObDim()
@@ -45,15 +45,15 @@ class Rg2Env(gym.Env):
         self._cenv.stopRecordingVideo()
 
     def step(self, actions: np.ndarray):
+        actions = actions.reshape(1, self.num_acts)
         _reward = np.zeros(1, dtype=np.float32)
         _done = np.zeros(1, dtype=np.bool_)
         self._cenv.step(actions, _reward, _done)
-
         _observation = np.zeros([1, self.num_obs], dtype=np.float32)
 
         self._cenv.observe(_observation, False)
 
-        return (_observation[0], _reward[0], _done[0], {})
+        return (_observation.flatten(), _reward.item(), _done.item(), {})
 
     def reset(self):
         self._cenv.reset()
@@ -62,8 +62,6 @@ class Rg2Env(gym.Env):
         self._cenv.observe(_observation, False)
 
         return _observation[0]
-    
+
     def close(self):
         self._cenv.close()
-    
-        
