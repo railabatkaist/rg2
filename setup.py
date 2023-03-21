@@ -13,7 +13,7 @@ cpver = cpver.replace(".", "") if cpver else None
 setup(
     name="rg2",
     py_modules=["rg2"],
-    version="0.0.7",
+    version="0.0.18",
     description="RaiGym2 : Fast, Pythonic, Versatile environment design for learning based locomotion",
     author="Simo Ryu",
     packages=find_packages(),
@@ -41,4 +41,5 @@ setup(
         )
     ],
     include_package_data=True,
+    package_data={"rg2": ["**"]}
 )

@@ -69,7 +69,6 @@ if (UNIX AND NOT APPLE AND NOT ANDROID AND NOT WEBGL AND NOT WIN32)
 #     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_SOURCE_DIR}/raisimGymTorch/env/bin)
 endif()
 
-find_package(raisim CONFIG REQUIRED)
 
 
 
@@ -79,8 +78,13 @@ find_package(raisim CONFIG REQUIRED)
 
 set(RAISIMGYM_ENV_DIR ${CMAKE_CURRENT_SOURCE_DIR}/rg2/csrc)
 
-pybind11_add_module(${PROJECT_NAME} rg2/csrc/binding.cpp rg2/csrc/Yaml.cpp)
-set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+pybind11_add_module(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/rg2/csrc/binding.cpp ${CMAKE_SOURCE_DIR}/rg2/csrc/Yaml.cpp)
+
+SET(CMAKE_BUILD_RPATH_USE_ORIGIN TRUE)
+
+find_package(raisim CONFIG REQUIRED ${CMAKE_SOURCE_DIR}/rg2/${RAISIM_OS})
+
+
 target_link_libraries(${PROJECT_NAME} PRIVATE raisim::raisim ${Dependencies})
 target_include_directories(${PROJECT_NAME} PUBLIC ${EIGEN3_INCLUDE_DIRS} ${RAISIMGYM_ENV_DIR})
 target_compile_options(${PROJECT_NAME} PRIVATE -fPIC -O3 -flto -mno-avx2)
