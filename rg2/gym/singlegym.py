@@ -1,3 +1,5 @@
+# Author : Simo Ryu
+
 import numpy as np
 import platform
 import os
