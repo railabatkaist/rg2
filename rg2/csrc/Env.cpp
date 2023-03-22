@@ -2,23 +2,31 @@
 // This file is part of RaiSim//
 // Copyright 2020, RaiSim Tech//
 //----------------------------//
+#ifndef SRC_RAISIMGYMENV_HPP
+#define SRC_RAISIMGYMENV_HPP
 
 #pragma once
 
 #include <stdlib.h>
 #include <set>
-#include "Env.hpp"
+
+#include <vector>
+#include <memory>
+#include <unordered_map>
+#include "Common.hpp"
+#include "raisim/World.hpp"
+#include "raisim/RaisimServer.hpp"
+#include "Yaml.hpp"
+#include "Reward.hpp"
+// #include "Env.hpp"
 
 namespace raisim
 {
-
-  class ENVIRONMENT : public UnitEnv
+  class UnitEnv
   {
-
   public:
-    explicit ENVIRONMENT(const std::string &resourceDir, const Yaml::Node &cfg, bool visualizable) : UnitEnv(resourceDir, cfg), visualizable_(visualizable), normDist_(0, 1)
+    explicit UnitEnv(const std::string &resourceDir, const Yaml::Node &cfg, bool visualizable) : resourceDir_(std::move(resourceDir)), cfg_(cfg), visualizable_(visualizable), normDist_(0, 1)
     {
-
       /// create world
       world_ = std::make_unique<raisim::World>();
 
@@ -54,7 +62,7 @@ namespace raisim
       robot_->setPdGains(jointPgain, jointDgain);
       robot_->setGeneralizedForce(Eigen::VectorXd::Zero(gvDim_));
 
-      /// MUST BE DONE FOR ALL ENVIRONMENTS
+      /// MUST BE DONE FOR ALL UnitEnvS
       obDim_ = 1 + 3 + 3 + 3 + nJoints_ * 2;
       actionDim_ = nJoints_;
       actionMean_.setZero(actionDim_);
@@ -106,19 +114,19 @@ namespace raisim
       robot_->setPdGains(pGain, dGain);
     }
 
-    void init() final
+    void init()
     {
       robot_->setState(gcInit_, gvInit_);
       updateObservation();
     }
 
-    void reset() final
+    void reset()
     {
       robot_->setState(gcInit_, gvInit_);
       updateObservation();
     }
 
-    float step(const Eigen::Ref<EigenVec> &action) final
+    float step(const Eigen::Ref<EigenVec> &action)
     {
       /// action scaling
       pTargetTail = action.cast<double>();
@@ -165,13 +173,13 @@ namespace raisim
           gv_.tail(nJoints_);              /// joint velocity
     }
 
-    void observe(Eigen::Ref<EigenVec> ob) final
+    void observe(Eigen::Ref<EigenVec> ob)
     {
       /// convert it to float
       ob = obDouble_.cast<float>();
     }
 
-    bool isTerminalState(float &terminalReward) final
+    bool isTerminalState(float &terminalReward)
     {
       terminalReward = float(terminalRewardCoeff_);
 
@@ -186,6 +194,27 @@ namespace raisim
 
     void curriculumUpdate(){};
 
+    void setSimulationTimeStep(double dt)
+    {
+      simulation_dt_ = dt;
+      world_->setTimeStep(dt);
+    }
+
+    void close(){};
+    void setSeed(int seed){};
+
+    void setControlTimeStep(double dt) { control_dt_ = dt; }
+    int getObDim() { return obDim_; }
+    int getActionDim() { return actionDim_; }
+    double getControlTimeStep() { return control_dt_; }
+    double getSimulationTimeStep() { return simulation_dt_; }
+    raisim::World *getWorld() { return world_.get(); }
+    void turnOffVisualization() { server_->hibernate(); }
+    void turnOnVisualization() { server_->wakeup(); }
+    void startRecordingVideo(const std::string &videoName) { server_->startRecordingVideo(videoName); }
+    void stopRecordingVideo() { server_->stopRecordingVideo(); }
+    raisim::Reward &getRewards() { return rewards_; }
+
   private:
     int gcDim_, gvDim_, nJoints_;
     bool visualizable_ = false;
@@ -199,7 +228,15 @@ namespace raisim
     /// these variables are not in use. They are placed to show you how to create a random number sampler.
     std::normal_distribution<double> normDist_;
     thread_local static std::mt19937 gen_;
+    std::unique_ptr<raisim::World> world_;
+    double simulation_dt_ = 0.001;
+    double control_dt_ = 0.01;
+    std::string resourceDir_;
+    Yaml::Node cfg_;
+    int obDim_ = 0, actionDim_ = 0;
+    std::unique_ptr<raisim::RaisimServer> server_;
+    raisim::Reward rewards_;
   };
-  thread_local std::mt19937 raisim::ENVIRONMENT::gen_;
-
 }
+
+#endif // SRC_RAISIMGYMENV_HPP

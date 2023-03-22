@@ -6,44 +6,44 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/eigen.h>
-#include "Env.hpp"
+#include "Env.cpp"
 #include "VecEnvWrapper.hpp"
 
 namespace py = pybind11;
 using namespace raisim;
 int THREAD_COUNT = 1;
 
-#ifndef ENVIRONMENT_NAME
-#define ENVIRONMENT_NAME CVecEnv
+#ifndef ENV_NAME
+#define ENV_NAME CVecEnv
 #endif
 
 PYBIND11_MODULE(RAISIMGYM_TORCH_ENV_NAME, m)
 {
-  py::class_<VectorizedEnvironment<ENVIRONMENT>>(m, RSG_MAKE_STR(ENVIRONMENT_NAME))
+  py::class_<VectorizedEnvironment<UnitEnv>>(m, RSG_MAKE_STR(ENV_NAME))
       .def(py::init<std::string, std::string>(), py::arg("resourceDir"), py::arg("cfg"))
-      .def("init", &VectorizedEnvironment<ENVIRONMENT>::init)
-      .def("reset", &VectorizedEnvironment<ENVIRONMENT>::reset)
-      .def("observe", &VectorizedEnvironment<ENVIRONMENT>::observe)
-      .def("step", &VectorizedEnvironment<ENVIRONMENT>::step)
-      .def("setSeed", &VectorizedEnvironment<ENVIRONMENT>::setSeed)
-      .def("rewardInfo", &VectorizedEnvironment<ENVIRONMENT>::getRewardInfo)
-      .def("close", &VectorizedEnvironment<ENVIRONMENT>::close)
-      .def("isTerminalState", &VectorizedEnvironment<ENVIRONMENT>::isTerminalState)
-      .def("setSimulationTimeStep", &VectorizedEnvironment<ENVIRONMENT>::setSimulationTimeStep)
-      .def("setControlTimeStep", &VectorizedEnvironment<ENVIRONMENT>::setControlTimeStep)
-      .def("getObDim", &VectorizedEnvironment<ENVIRONMENT>::getObDim)
-      .def("getActionDim", &VectorizedEnvironment<ENVIRONMENT>::getActionDim)
-      .def("getNumOfEnvs", &VectorizedEnvironment<ENVIRONMENT>::getNumOfEnvs)
-      .def("turnOnVisualization", &VectorizedEnvironment<ENVIRONMENT>::turnOnVisualization)
-      .def("turnOffVisualization", &VectorizedEnvironment<ENVIRONMENT>::turnOffVisualization)
-      .def("stopRecordingVideo", &VectorizedEnvironment<ENVIRONMENT>::stopRecordingVideo)
-      .def("startRecordingVideo", &VectorizedEnvironment<ENVIRONMENT>::startRecordingVideo)
-      .def("curriculumUpdate", &VectorizedEnvironment<ENVIRONMENT>::curriculumUpdate)
-      .def("getObStatistics", &VectorizedEnvironment<ENVIRONMENT>::getObStatistics)
-      .def("setObStatistics", &VectorizedEnvironment<ENVIRONMENT>::setObStatistics)
-      .def("setInitConstants", &VectorizedEnvironment<ENVIRONMENT>::setInitConstants)
+      .def("init", &VectorizedEnvironment<UnitEnv>::init)
+      .def("reset", &VectorizedEnvironment<UnitEnv>::reset)
+      .def("observe", &VectorizedEnvironment<UnitEnv>::observe)
+      .def("step", &VectorizedEnvironment<UnitEnv>::step)
+      .def("setSeed", &VectorizedEnvironment<UnitEnv>::setSeed)
+      .def("rewardInfo", &VectorizedEnvironment<UnitEnv>::getRewardInfo)
+      .def("close", &VectorizedEnvironment<UnitEnv>::close)
+      .def("isTerminalState", &VectorizedEnvironment<UnitEnv>::isTerminalState)
+      .def("setSimulationTimeStep", &VectorizedEnvironment<UnitEnv>::setSimulationTimeStep)
+      .def("setControlTimeStep", &VectorizedEnvironment<UnitEnv>::setControlTimeStep)
+      .def("getObDim", &VectorizedEnvironment<UnitEnv>::getObDim)
+      .def("getActionDim", &VectorizedEnvironment<UnitEnv>::getActionDim)
+      .def("getNumOfEnvs", &VectorizedEnvironment<UnitEnv>::getNumOfEnvs)
+      .def("turnOnVisualization", &VectorizedEnvironment<UnitEnv>::turnOnVisualization)
+      .def("turnOffVisualization", &VectorizedEnvironment<UnitEnv>::turnOffVisualization)
+      .def("stopRecordingVideo", &VectorizedEnvironment<UnitEnv>::stopRecordingVideo)
+      .def("startRecordingVideo", &VectorizedEnvironment<UnitEnv>::startRecordingVideo)
+      .def("curriculumUpdate", &VectorizedEnvironment<UnitEnv>::curriculumUpdate)
+      .def("getObStatistics", &VectorizedEnvironment<UnitEnv>::getObStatistics)
+      .def("setObStatistics", &VectorizedEnvironment<UnitEnv>::setObStatistics)
+      //.def("setInitConstants", &VectorizedEnvironment<UnitEnv>::setInitConstants)
       .def(py::pickle(
-          [](const VectorizedEnvironment<ENVIRONMENT> &p) { // __getstate__ --> Pickling to Python
+          [](const VectorizedEnvironment<UnitEnv> &p) { // __getstate__ --> Pickling to Python
             /* Return a tuple that fully encodes the state of the object */
             return py::make_tuple(p.getResourceDir(), p.getCfgString());
           },
@@ -54,7 +54,7 @@ PYBIND11_MODULE(RAISIMGYM_TORCH_ENV_NAME, m)
             }
 
             /* Create a new C++ instance */
-            VectorizedEnvironment<ENVIRONMENT> p(t[0].cast<std::string>(), t[1].cast<std::string>());
+            VectorizedEnvironment<UnitEnv> p(t[0].cast<std::string>(), t[1].cast<std::string>());
 
             return p;
           }));

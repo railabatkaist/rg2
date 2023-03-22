@@ -79,11 +79,11 @@ namespace raisim
       }
     }
 
-    void setInitConstants(Eigen::VectorXd gcInit, Eigen::VectorXd gvInit, Eigen::VectorXd actionMean, Eigen::VectorXd actionStd, Eigen::VectorXd pGain, Eigen::VectorXd dGain)
-    {
-      for (auto env : environments_)
-        env->setInitConstants(gcInit, gvInit, actionMean, actionStd, pGain, dGain);
-    }
+    // void setInitConstants(Eigen::VectorXd gcInit, Eigen::VectorXd gvInit, Eigen::VectorXd actionMean, Eigen::VectorXd actionStd, Eigen::VectorXd pGain, Eigen::VectorXd dGain)
+    // {
+    //   for (auto env : environments_)
+    //     env->setInitConstants(gcInit, gvInit, actionMean, actionStd, pGain, dGain);
+    // }
 
     // resets all environments and returns observation
     void reset()
