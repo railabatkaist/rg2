@@ -63,4 +63,23 @@ PYBIND11_MODULE(RAISIMGYM_TORCH_ENV_NAME, m)
       .def(py::init<int>(), py::arg("dim"))
       .def("seed", &NormalSampler::seed)
       .def("sample", &NormalSampler::sample);
+
+  py::class_<UnitEnv>(m, "UnitEnv")
+      .def(py::init<std::string, std::string, bool>(), py::arg("resourceDir"), py::arg("cfg"), py::arg("visualizable"))
+      .def("init", &UnitEnv::init)
+      .def("reset", &UnitEnv::reset)
+      .def("observe", &UnitEnv::observe)
+      .def("step", &UnitEnv::step)
+      .def("setSeed", &UnitEnv::setSeed)
+      .def("close", &UnitEnv::close)
+      .def("isTerminalState", &UnitEnv::isTerminalState)
+      .def("setSimulationTimeStep", &UnitEnv::setSimulationTimeStep)
+      .def("setControlTimeStep", &UnitEnv::setControlTimeStep)
+      .def("getObDim", &UnitEnv::getObDim)
+      .def("getActionDim", &UnitEnv::getActionDim)
+      .def("turnOnVisualization", &UnitEnv::turnOnVisualization)
+      .def("turnOffVisualization", &UnitEnv::turnOffVisualization)
+      .def("stopRecordingVideo", &UnitEnv::stopRecordingVideo)
+      .def("startRecordingVideo", &UnitEnv::startRecordingVideo)
+      .def("curriculumUpdate", &UnitEnv::curriculumUpdate);
 }

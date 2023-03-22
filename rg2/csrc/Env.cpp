@@ -25,8 +25,10 @@ namespace raisim
   class UnitEnv
   {
   public:
-    explicit UnitEnv(const std::string &resourceDir, const Yaml::Node &cfg, bool visualizable) : resourceDir_(std::move(resourceDir)), cfg_(cfg), visualizable_(visualizable), normDist_(0, 1)
+    explicit UnitEnv(const std::string &resourceDir, const std::string &cfgString, bool visualizable) : resourceDir_(std::move(resourceDir)), visualizable_(visualizable), normDist_(0, 1)
     {
+      Yaml::Parse(cfg_, cfgString);
+
       /// create world
       world_ = std::make_unique<raisim::World>();
 
@@ -76,7 +78,7 @@ namespace raisim
       actionStd_.setConstant(action_std);
 
       /// Reward coefficients
-      rewards_.initializeFromConfigurationFile(cfg["reward"]);
+      rewards_.initializeFromConfigurationFile(cfg_["reward"]);
 
       /// indices of links that should not make contact with ground
       footIndices_.insert(robot_->getBodyIdx("LF_SHANK"));
