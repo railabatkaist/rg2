@@ -5,15 +5,17 @@ from setuptools import find_packages, setup
 
 from glob import glob
 
+from rg2 import __version__
+
 print(list(glob("rg2/linux/lib/**", recursive=True)))
 
-cpver = os.environ.get("CPVER", None)
-cpver = cpver.replace(".", "") if cpver else None
+CPVER = os.environ.get("CPVER", None)
+CPVER = CPVER.replace(".", "") if CPVER else None
 
 setup(
     name="rg2",
     py_modules=["rg2"],
-    version="0.0.18",
+    version=__version__,
     description="RaiGym2 : Fast, Pythonic, Versatile environment design for learning based locomotion",
     author="Simo Ryu",
     packages=find_packages(),
@@ -34,7 +36,7 @@ setup(
             list(
                 set(
                     list(glob("rg2/linux/lib/*.so*", recursive=True))
-                    + list(glob(f"rg2/bin/_rg2.cpython-{cpver}*"))
+                    + list(glob(f"rg2/bin/_rg2.cpython-{CPVER}*"))
                 )   
                 - set(["rg2/linux/lib/"])
             ),
