@@ -42,6 +42,11 @@ setup(
             ),
         )
     ],
+    entry_points={
+        "console_scripts": [
+            "rg2 = rg2.clis.cli_inits:main"
+        ],
+    },
     include_package_data=True,
     package_data={"rg2": ["**"]}
 )
