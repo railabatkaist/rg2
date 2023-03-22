@@ -94,6 +94,11 @@ namespace raisim
         server_->focusOn(robot_);
       }
     }
+    ~UnitEnv()
+    {
+      if (server_)
+        server_->killServer();
+    };
 
     void setInitConstants(Eigen::VectorXd gcInit, Eigen::VectorXd gvInit, Eigen::VectorXd actionMean, Eigen::VectorXd actionStd, Eigen::VectorXd pGain, Eigen::VectorXd dGain)
     {

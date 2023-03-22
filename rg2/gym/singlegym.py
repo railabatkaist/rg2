@@ -119,10 +119,10 @@ class WebRgEnv(Rg2Env):
 
 class Rg2UEnv(gym.Env):
     
-    def __init__(self, urdf_path: str, cfgstr: str, seed: int = 0):
+    def __init__(self, urdf_path: str, cfgstr: str, seed: int = 0, visualizable: bool = False):
         super().__init__()
 
-        self._cenv = UnitEnv(urdf_path, cfgstr, 0)
+        self._cenv = UnitEnv(urdf_path, cfgstr, visualizable)
         self._cenv.setSeed(seed)
 
         self.num_obs = self._cenv.getObDim()
@@ -135,7 +135,8 @@ class Rg2UEnv(gym.Env):
         self.action_space = spaces.Box(
             low=-10, high=10, shape=(self.num_acts,), dtype=np.float32
         )
-        
+        self._cenv.init()
+        self._cenv.reset()
         self._cenv.setControlTimeStep(0.01)
         self._cenv.setSimulationTimeStep(0.0025)
     
@@ -190,7 +191,7 @@ class WebRgUEnv(Rg2UEnv):
         )
     }
 
-    def __init__(self, env_id: str = "anymal"):
+    def __init__(self, env_id: str = "anymal", seed: int = -1, visualizable: bool = False):
 
         # make dir to save urdf and cfg
         os.makedirs("./gym", exist_ok=True)
@@ -206,5 +207,5 @@ class WebRgUEnv(Rg2UEnv):
 
         # init
         super().__init__(
-            f"./gym/{env_id}.urdf", RgConfig.from_yaml(f"./gym/{env_id}.yaml").as_yaml_str()
+            f"./gym/{env_id}.urdf", RgConfig.from_yaml(f"./gym/{env_id}.yaml").as_yaml_str(), seed = seed , visualizable = visualizable
         )
