@@ -37,16 +37,14 @@ setup(
                 set(
                     list(glob("rg2/linux/lib/*.so*", recursive=True))
                     + list(glob(f"rg2/bin/_rg2.cpython-{CPVER}*"))
-                )   
+                )
                 - set(["rg2/linux/lib/"])
             ),
         )
     ],
     entry_points={
-        "console_scripts": [
-            "rg2 = rg2.clis.cli_inits:main"
-        ],
+        "console_scripts": ["rg2 = rg2.clis.cli_inits:main"],
     },
     include_package_data=True,
-    package_data={"rg2": ["**"]}
+    package_data={"rg2": ["**"]},
 )
