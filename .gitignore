@@ -6,3 +6,4 @@ rg2.egg-info/
 __pycache__
 stubs
 gym
+logs
