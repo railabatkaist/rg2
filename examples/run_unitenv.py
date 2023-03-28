@@ -15,7 +15,7 @@ def make_env(rank):
     return __init
 
 
-envs = DummyVecEnv([make_env(i) for i in range(8)])
+envs = DummyVecEnv([make_env(i) for i in range(32)])
 envs = VecNormalize(envs, norm_obs=True, norm_reward=False, clip_obs=10.0)
 
 envs.env_method("turn_on_visualization", indices=0)

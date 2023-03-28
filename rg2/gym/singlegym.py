@@ -8,7 +8,8 @@ import gym
 from gym import spaces
 from ..bin import UnitEnv
 from ..utils import RgConfig
-
+import requests
+import zipfile
 
 ANYMAL_CFG =  """
 render: True
@@ -94,13 +95,13 @@ class WebRgUEnv(Rg2UEnv):
 
     urdf_cfg_pairs = {
         "anymal": (
-            "https://raw.githubusercontent.com/raisimTech/raisimLib/master/rsc/anymal/urdf/anymal.urdf",
+            "https://github.com/railabatkaist/rg2/blob/main/examples/rsc/anymal.zip?raw=true",
            ANYMAL_CFG,
            "urdf/anymal.urdf"
         )
     }
 
-    def __init__(self, env_id: str = "anymal", seed: int = -1, visualizable: bool = False):
+    def __init__(self, env_id: str = "anymal", seed: int = -1, visualizable: bool = False)-> None:
 
         # make dir to save urdf and cfg
         os.makedirs("./gym", exist_ok=True)
@@ -110,15 +111,12 @@ class WebRgUEnv(Rg2UEnv):
         
         urdf, cfg, entry_point = self.urdf_cfg_pairs[env_id]
         
-        # with open(f"./gym/{env_id}/file.zip", "w") as f:
-        #     f.write(requests.get(urdf).content)
+        with open(f"./gym/{env_id}/file.zip", "wb") as f:
+            f.write(requests.get(urdf).content)
         
         # unzip urdf
-        if platform.system() == "Windows":
-            os.system(f"tar -xf ./gym/{env_id}/file.zip -C ./gym/{env_id}")
-        else:
-            os.system(f"unzip ./gym/{env_id}/file.zip -d ./gym/{env_id}")
-        
+        with zipfile.ZipFile(f"./gym/{env_id}/file.zip", "r") as zip_ref:
+            zip_ref.extractall(f"./gym/{env_id}")
         
         with open(f"./gym/{env_id}/{env_id}.yaml", "w") as f:
             f.write(cfg)
