@@ -8,7 +8,6 @@ import gym
 from gym import spaces
 from ..bin import UnitEnv
 from ..utils import RgConfig
-import requests
 
 
 ANYMAL_CFG =  """

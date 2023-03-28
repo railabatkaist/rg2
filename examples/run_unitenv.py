@@ -1,12 +1,9 @@
 from rg2 import WebRgUEnv
-from rg2.utils import RgConfig
-from stable_baselines3 import PPO
-from stable_baselines3.common.env_util import make_vec_env
-from stable_baselines3.common.monitor import Monitor
 
+from stable_baselines3 import PPO
+from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.vec_env import VecNormalize, DummyVecEnv
 from stable_baselines3.common.callbacks import CheckpointCallback
-from functools import partial
 
 
 def make_env(rank):
@@ -19,8 +16,6 @@ def make_env(rank):
 
 
 envs = DummyVecEnv([make_env(i) for i in range(8)])
-# envs = DummyVecEnv([(lambda :  WebRgUEnv("anymal", seed = i, visualizable=(i == 0))) for i in range(8)])
-# envs = make_vec_env(WebRgUEnv, n_envs=8, env_kwargs={"env_id": "anymal"})
 envs = VecNormalize(envs, norm_obs=True, norm_reward=False, clip_obs=10.0)
 
 envs.env_method("turn_on_visualization", indices=0)
