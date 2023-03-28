@@ -97,6 +97,7 @@ class WebRgUEnv(Rg2UEnv):
         "anymal": (
             "https://raw.githubusercontent.com/raisimTech/raisimLib/master/rsc/anymal/urdf/anymal.urdf",
            ANYMAL_CFG,
+           "urdf/anymal.urdf"
         )
     }
 
@@ -108,13 +109,21 @@ class WebRgUEnv(Rg2UEnv):
 
         # download urdf and cfg
         
-        urdf, cfg = self.urdf_cfg_pairs[env_id]
-        with open(f"./gym/{env_id}/anymal.urdf", "w") as f:
-            f.write(requests.get(urdf).text)
-        with open(f"./gym/{env_id}/anymal.yaml", "w") as f:
+        urdf, cfg, entry_point = self.urdf_cfg_pairs[env_id]
+        
+        # with open(f"./gym/{env_id}/file.zip", "w") as f:
+        #     f.write(requests.get(urdf).content)
+        
+        # unzip urdf
+        if platform.system() == "Windows":
+            os.system(f"tar -xf ./gym/{env_id}/file.zip -C ./gym/{env_id}")
+        else:
+            os.system(f"unzip ./gym/{env_id}/file.zip -d ./gym/{env_id}")
+        
+        
+        with open(f"./gym/{env_id}/{env_id}.yaml", "w") as f:
             f.write(cfg)
-#"./gym/{env_id}/anymal.urdf"
-        # init
+
         super().__init__(
-            f"./gym/{env_id}/anymal.urdf", RgConfig.from_yaml(f"./gym/{env_id}/anymal.yaml").as_yaml_str(), seed = seed , visualizable = visualizable
+            str(os.path.abspath(f"./gym/{env_id}/{env_id}/{entry_point}")), RgConfig.from_yaml(f"./gym/{env_id}/{env_id}.yaml").as_yaml_str(), seed = seed , visualizable = visualizable
         )
