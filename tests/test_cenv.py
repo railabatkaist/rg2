@@ -30,7 +30,6 @@ reward:
 
 class CgymEnvTester(unittest.TestCase):
     def test_loading_urdf_yaml(self):
-
         # Save URDF
         tmp_dir = tempfile.mkdtemp()
         tmp_urdf_path = os.path.join(tmp_dir, "anymal.urdf")
@@ -56,5 +55,4 @@ class CgymEnvTester(unittest.TestCase):
         self.assertEqual(cenv.getObDim(), 34)
 
     def test_random_action_space(self):
-
         pass

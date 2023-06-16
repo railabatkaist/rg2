@@ -1,6 +1,4 @@
 numpy
-stable-baselines3
 gym>=0.21
-torch>=1.12
 matplotlib
 ruamel.yaml

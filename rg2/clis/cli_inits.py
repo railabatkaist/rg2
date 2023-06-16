@@ -2,7 +2,6 @@ import os
 
 
 def _setup_cli():
-
     # create a file on the user's home path.
     os.makedirs(os.path.expanduser("~/.raisim"), exist_ok=True)
 
@@ -29,6 +28,7 @@ def _setup_cli():
     # relative to this filepath
 
     libpath = os.path.join(os.path.dirname(__file__), "../linux/lib")
+    libpath = os.path.abspath(libpath)
 
     if "LD_LIBRARY_PATH" not in os.environ:
         os.environ["LD_LIBRARY_PATH"] = libpath

@@ -31,7 +31,7 @@ class Rg2UEnv(gym.Env):
     def __init__(self, urdf_path: str, cfgstr: str, seed: int = 0, visualizable: bool = False):
         super().__init__()
 
-        self._cenv = UnitEnv(urdf_path, cfgstr, visualizable)
+        self._cenv = UnitEnv(urdf_path, visualizable)
         self._cenv.setSeed(seed)
 
         self.num_obs = self._cenv.getObDim()

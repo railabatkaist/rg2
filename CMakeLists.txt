@@ -26,7 +26,6 @@ ENDMACRO()
 
 set(Dependencies)
 add_subdirectory(extern/pybind11 pybind11)
-#list(APPEND CMAKE_PREFIX_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../thirdParty/Eigen3)
 find_package(Eigen3 CONFIG REQUIRED)
 
 if (APPLE)
@@ -79,12 +78,11 @@ find_package(raisim CONFIG REQUIRED)
 
 set(RAISIMGYM_ENV_DIR ${CMAKE_CURRENT_SOURCE_DIR}/rg2/csrc)
 
-pybind11_add_module(${PROJECT_NAME} rg2/csrc/binding.cpp rg2/csrc/Yaml.cpp)
+pybind11_add_module(${PROJECT_NAME} rg2/csrc/binding.cpp)
 set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 target_link_libraries(${PROJECT_NAME} PRIVATE raisim::raisim ${Dependencies})
 target_include_directories(${PROJECT_NAME} PUBLIC ${EIGEN3_INCLUDE_DIRS} ${RAISIMGYM_ENV_DIR})
 target_compile_options(${PROJECT_NAME} PRIVATE -fPIC -O3 -flto -mno-avx2)
-target_compile_definitions(${PROJECT_NAME} PRIVATE "-DRAISIMGYM_TORCH_ENV_NAME=${PROJECT_NAME}")
 target_compile_definitions(${PROJECT_NAME} PRIVATE "$<$<CONFIG:Release>:EIGEN_NO_DEBUG>")
 target_compile_definitions(${PROJECT_NAME} PRIVATE EIGEN_DONT_PARALLELIZE)
 

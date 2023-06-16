@@ -28,7 +28,6 @@ reward:
 
 class VecEnvTester(unittest.TestCase):
     def test_vecenv_sb3(self):
-
         # Save URDF
         tmp_dir = tempfile.mkdtemp()
         tmp_urdf_path = os.path.join(tmp_dir, "anymal.urdf")
@@ -57,7 +56,6 @@ class VecEnvTester(unittest.TestCase):
         env.close()
 
     def test_vecenv_sb3(self):
-
         # Save URDF
         tmp_dir = tempfile.mkdtemp()
         tmp_urdf_path = os.path.join(tmp_dir, "anymal.urdf")

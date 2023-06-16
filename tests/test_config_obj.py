@@ -8,7 +8,6 @@ from rg2.utils import RgConfig
 
 class RgConfigTester(unittest.TestCase):
     def test_attr(self):
-
         cfg = RgConfig(
             {
                 "a": 1,
@@ -22,7 +21,6 @@ class RgConfigTester(unittest.TestCase):
         self.assertEqual(cfg.c, [1, 2, 3])
 
     def test_from_yaml(self):
-
         tmp_dir = tempfile.mkdtemp()
         tmp_yaml_path = os.path.join(tmp_dir, "test_config.yaml")
         with open(tmp_yaml_path, "w") as f:

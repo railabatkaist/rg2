@@ -1,7 +1,7 @@
 
 
 # iterate over all versions of python
-for version in 3.9
+for version in 3.9 # for version in 3.6 3.7 3.8 3.9 3.10
 do
     eval "$(conda shell.bash hook)"
     # activate the environment
