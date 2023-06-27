@@ -3,12 +3,9 @@ import rg2.bin._rg2
 import typing
 import numpy
 
-__all__ = [
-    "UnitEnv"
-]
+__all__ = ["WalkerEnv"]
 
-
-class UnitEnv():
+class WalkerEnv:
     def __init__(self, resourceDir: str, visualizable: bool) -> None: ...
     def close(self) -> None: ...
     def curriculumUpdate(self) -> None: ...

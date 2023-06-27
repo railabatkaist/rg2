@@ -1,7 +1,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/eigen.h>
-#include "Env.cpp"
+#include "include/WalkerEnv.hpp"
 
 namespace py = pybind11;
 
@@ -9,22 +9,22 @@ int THREAD_COUNT = 1;
 
 PYBIND11_MODULE(_rg2, m)
 {
-  py::class_<UnitEnv>(m, "UnitEnv")
+  py::class_<WalkerEnv>(m, "WalkerEnv")
       .def(py::init<std::string, bool>(), py::arg("resourceDir"), py::arg("visualizable"))
-      .def("init", &UnitEnv::init)
-      .def("reset", &UnitEnv::reset)
-      .def("observe", &UnitEnv::observe)
-      .def("step", &UnitEnv::step)
-      .def("setSeed", &UnitEnv::setSeed)
-      .def("close", &UnitEnv::close)
-      .def("isTerminalState", &UnitEnv::isTerminalState)
-      .def("setSimulationTimeStep", &UnitEnv::setSimulationTimeStep)
-      .def("setControlTimeStep", &UnitEnv::setControlTimeStep)
-      .def("getObDim", &UnitEnv::getObDim)
-      .def("getActionDim", &UnitEnv::getActionDim)
-      .def("turnOnVisualization", &UnitEnv::turnOnVisualization)
-      .def("turnOffVisualization", &UnitEnv::turnOffVisualization)
-      .def("stopRecordingVideo", &UnitEnv::stopRecordingVideo)
-      .def("startRecordingVideo", &UnitEnv::startRecordingVideo)
-      .def("curriculumUpdate", &UnitEnv::curriculumUpdate);
+      .def("init", &WalkerEnv::init)
+      .def("reset", &WalkerEnv::reset)
+      .def("observe", &WalkerEnv::observe)
+      .def("step", &WalkerEnv::step)
+      .def("setSeed", &WalkerEnv::setSeed)
+      .def("close", &WalkerEnv::close)
+      .def("isTerminalState", &WalkerEnv::isTerminalState)
+      .def("setSimulationTimeStep", &WalkerEnv::setSimulationTimeStep)
+      .def("setControlTimeStep", &WalkerEnv::setControlTimeStep)
+      .def("getObDim", &WalkerEnv::getObDim)
+      .def("getActionDim", &WalkerEnv::getActionDim)
+      .def("turnOnVisualization", &WalkerEnv::turnOnVisualization)
+      .def("turnOffVisualization", &WalkerEnv::turnOffVisualization)
+      .def("stopRecordingVideo", &WalkerEnv::stopRecordingVideo)
+      .def("startRecordingVideo", &WalkerEnv::startRecordingVideo)
+      .def("curriculumUpdate", &WalkerEnv::curriculumUpdate);
 }

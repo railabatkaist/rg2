@@ -4,9 +4,9 @@ You have three sets of abstraction that we mainly care about:
 
 First is the environment parallelizer: this is here to make use of the best threading possible, required due to python GIL. This is implemented as `CVecEnv` at `VecEnvWrapper`.
 
-`CVecEnv` is implemented as vectorization of `UnitEnv`, which defines individual property of the environments. Consequently, these are independent of each other.
+`CVecEnv` is implemented as vectorization of `WalkerEnv`, which defines individual property of the environments. Consequently, these are independent of each other.
 
-`UnitEnv` should be able to simulate various locomotion environments.
+`WalkerEnv` should be able to simulate various locomotion environments.
 
 ## On Initialization
 
@@ -36,7 +36,7 @@ These should be able to accept various arguments during initialization including
 
 ## Per Step
 
-`UnitEnv` should be able to handle various per-step arguements, such as:
+`WalkerEnv` should be able to handle various per-step arguements, such as:
 
 1. Curriculum configurations, such as:
 

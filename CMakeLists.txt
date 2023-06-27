@@ -75,13 +75,15 @@ find_package(raisim CONFIG REQUIRED)
 #######################
 ### src and linking ###
 #######################
+# collect all source files
+file(GLOB SOURCE_FILES
+    rg2/csrc/src/*.cpp
+)
 
-set(RAISIMGYM_ENV_DIR ${CMAKE_CURRENT_SOURCE_DIR}/rg2/csrc)
-
-pybind11_add_module(${PROJECT_NAME} rg2/csrc/binding.cpp)
+pybind11_add_module(${PROJECT_NAME} ${SOURCE_FILES} rg2/csrc/binding.cpp)
 set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 target_link_libraries(${PROJECT_NAME} PRIVATE raisim::raisim ${Dependencies})
-target_include_directories(${PROJECT_NAME} PUBLIC ${EIGEN3_INCLUDE_DIRS} ${RAISIMGYM_ENV_DIR})
+target_include_directories(${PROJECT_NAME} PUBLIC ${EIGEN3_INCLUDE_DIRS} ${RAISIMGYM_ENV_DIR}/include)
 target_compile_options(${PROJECT_NAME} PRIVATE -fPIC -O3 -flto -mno-avx2)
 target_compile_definitions(${PROJECT_NAME} PRIVATE "$<$<CONFIG:Release>:EIGEN_NO_DEBUG>")
 target_compile_definitions(${PROJECT_NAME} PRIVATE EIGEN_DONT_PARALLELIZE)
