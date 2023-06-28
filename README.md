@@ -1,8 +1,22 @@
 # RaiGym2 : Fast, Pythonic, Versatile environment design for learning based locomotion
 
-[WIP]
+# Installation
 
-## Development
+```bash
+pip install git+https://github.com/railabatkaist/rg2.git
+```
+
+Steps:
+
+0. Environment gets initialized. There are various aspect of Noise configurations, such as
+   - Per-episode noise (These include ground config, initial position, command, etc.)
+   - Per-sim-timestep noise (These include friction, simulation time-step, etc.)
+   - Per-step noise (These include observation noise, action noise, etc.)
+1. Agent watches the Observation. This includes command list.
+2. Agent takes Action.
+   - Here, the action is happened between $t_{i}$ and $t_{i+n}$, where $n$ is the number of steps for which the simulation is integrated. (Physics engine is integrated for $n$ steps. Every sim-timestep, the per-sim-timestep noise is applied, and every step, the per-step noise is applied.)
+
+## Local Development
 
 ### Building C++ Gym Environment
 

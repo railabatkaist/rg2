@@ -9,9 +9,11 @@ int THREAD_COUNT = 1;
 
 PYBIND11_MODULE(_rg2, m)
 {
-  py::class_<WalkerEnv>(m, "WalkerEnv")
-      .def(py::init<std::string, bool>(), py::arg("resourceDir"), py::arg("visualizable"))
-      .def("init", &WalkerEnv::init)
+  py::class_<WalkerEnvConfig>(m, "CWalkerEnvConfig")
+      .def(py::init<py::dict>());
+
+  py::class_<WalkerEnv>(m, "CWalkerEnv")
+      .def(py::init<const WalkerEnvConfig &, bool>())
       .def("reset", &WalkerEnv::reset)
       .def("observe", &WalkerEnv::observe)
       .def("step", &WalkerEnv::step)

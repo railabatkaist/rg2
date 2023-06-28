@@ -1,16 +1,38 @@
 #include "../include/WalkerEnv.hpp"
-
 thread_local std::mt19937 WalkerEnv::gen_;
 
-WalkerEnv::WalkerEnv(const std::string &resourceDir, bool visualizable)
-    : resourceDir_(std::move(resourceDir)), visualizable_(visualizable), normDist_(0, 1)
+// Function to sample from a Gaussian distribution
+Eigen::MatrixXd sampleGaussian(const Eigen::Index rows, const Eigen::Index cols, const double mean, const double stddev, std::mt19937 &generator)
 {
-    createWorldAndRobot();
-    initializeContainers();
-    setPdGains();
-    initializeObservationSpace();
-    if (visualizable_)
-        initializeVisualization();
+    std::normal_distribution<double> dist(mean, stddev);
+    Eigen::MatrixXd result(rows, cols);
+
+    for (Eigen::Index i = 0; i < rows; ++i)
+    {
+        for (Eigen::Index j = 0; j < cols; ++j)
+        {
+            result(i, j) = dist(generator);
+        }
+    }
+
+    return result;
+}
+
+// Function to sample from a uniform distribution
+Eigen::MatrixXd sampleUniform(const Eigen::Index rows, const Eigen::Index cols, const double min_val, const double max_val, std::mt19937 &generator)
+{
+    std::uniform_real_distribution<double> dist(min_val, max_val);
+    Eigen::MatrixXd result(rows, cols);
+
+    for (Eigen::Index i = 0; i < rows; ++i)
+    {
+        for (Eigen::Index j = 0; j < cols; ++j)
+        {
+            result(i, j) = dist(generator);
+        }
+    }
+
+    return result;
 }
 
 WalkerEnv::~WalkerEnv()
@@ -22,52 +44,47 @@ WalkerEnv::~WalkerEnv()
 void WalkerEnv::createWorldAndRobot()
 {
     world_ = std::make_unique<raisim::World>();
-    robot_ = world_->addArticulatedSystem(resourceDir_);
+    robot_ = std::make_unique<raisim::ArticulatedSystem>(resourceDir_);
     robot_->setName("robot");
     robot_->setControlMode(raisim::ControlMode::PD_PLUS_FEEDFORWARD_TORQUE);
     world_->addGround();
     gcDim_ = robot_->getGeneralizedCoordinateDim();
     gvDim_ = robot_->getDOF();
     nJoints_ = gvDim_ - 6;
-}
-
-void WalkerEnv::initializeContainers()
-{
     gc_.setZero(gcDim_);
-    gcInit_.setZero(gcDim_);
+    // gcInit_.setZero(gcDim_);
     gv_.setZero(gvDim_);
-    gvInit_.setZero(gvDim_);
-    pTarget_.setZero(gcDim_);
-    vTarget_.setZero(gvDim_);
+    // gvInit_.setZero(gvDim_);
 
-    gcInit_ << 0, 0, 0.50, 1.0, 0.0, 0.0, 0.0, 0.03, 0.4, -0.8, -0.03, 0.4, -0.8, 0.03, -0.4, 0.8, -0.03, -0.4, 0.8;
+    // if (visualizable_ & DEBUG)
+    // {
+    //     // print out info
+    //     std::cout << "gcDim: " << gcDim_ << std::endl;
+    //     std::cout << "gvDim: " << gvDim_ << std::endl;
+    //     std::cout << "nJoints: " << nJoints_ << std::endl;
+    //     std::cout << "gcInit: " << gcInit_.transpose() << std::endl;
+    //     std::cout << "gvInit: " << gvInit_.transpose() << std::endl;
+    //     std::cout << "gc: " << gc_.transpose() << std::endl;
+    //     std::cout << "gv: " << gv_.transpose() << std::endl;
+    // }
+
+    // gcInit_ << 0, 0, 0.50, 1.0, 0.0, 0.0, 0.0, 0.03, 0.4, -0.8, -0.03, 0.4, -0.8, 0.03, -0.4, 0.8, -0.03, -0.4, 0.8;
 }
 
-void WalkerEnv::setPdGains()
+void WalkerEnv::setPdGains(float pGain, float dGain)
 {
     Eigen::VectorXd jointPgain(gvDim_), jointDgain(gvDim_);
     jointPgain.setZero();
-    jointPgain.tail(nJoints_).setConstant(50.0);
+    jointPgain.tail(nJoints_).setConstant(pGain);
     jointDgain.setZero();
-    jointDgain.tail(nJoints_).setConstant(0.2);
+    jointDgain.tail(nJoints_).setConstant(dGain);
+
+    // noise
+    jointPgain.tail(nJoints_) += jointPgain.tail(nJoints_).cwiseProduct(Eigen::VectorXd::Random(nJoints_) * 0.05 * envval(EnvParams::NOISE_PD_CONTROLLER_GAIN));
+    jointDgain.tail(nJoints_) += jointDgain.tail(nJoints_).cwiseProduct(Eigen::VectorXd::Random(nJoints_) * 0.05 * envval(EnvParams::NOISE_PD_CONTROLLER_GAIN));
+
     robot_->setPdGains(jointPgain, jointDgain);
     robot_->setGeneralizedForce(Eigen::VectorXd::Zero(gvDim_));
-}
-
-void WalkerEnv::initializeObservationSpace()
-{
-    obDim_ = 1 + 3 + 3 + 3 + nJoints_ * 2;
-    actionDim_ = nJoints_;
-    actionMean_.setZero(actionDim_);
-    actionStd_.setZero(actionDim_);
-    obDouble_.setZero(obDim_);
-    actionMean_ = gcInit_.tail(nJoints_);
-    double action_std = 0.3;
-    actionStd_.setConstant(action_std);
-    footIndices_.insert(robot_->getBodyIdx("LF_SHANK"));
-    footIndices_.insert(robot_->getBodyIdx("RF_SHANK"));
-    footIndices_.insert(robot_->getBodyIdx("LH_SHANK"));
-    footIndices_.insert(robot_->getBodyIdx("RH_SHANK"));
 }
 
 void WalkerEnv::initializeVisualization()
@@ -75,54 +92,96 @@ void WalkerEnv::initializeVisualization()
     std::cout << "Starting visualization thread..." << std::endl;
     server_ = std::make_unique<raisim::RaisimServer>(world_.get());
     server_->launchServer();
-    server_->focusOn(robot_);
+    server_->focusOn(robot_.get());
 }
 
-void WalkerEnv::setInitConstants(Eigen::VectorXd gcInit, Eigen::VectorXd gvInit, Eigen::VectorXd actionMean, Eigen::VectorXd actionStd, Eigen::VectorXd pGain, Eigen::VectorXd dGain)
+void WalkerEnv::setInitConstants()
 {
-    assert(gcInit.size() == gcDim_);
-    assert(gvInit.size() == gvDim_);
-    assert(actionMean.size() == actionDim_);
-    assert(actionStd.size() == actionDim_);
-    assert(pGain.size() == gvDim_);
-    assert(dGain.size() == gvDim_);
 
-    gcInit_ = gcInit;
-    gvInit_ = gvInit;
+    obDim_ = 1 + 3 + 3 + 3 + nJoints_ * 2;
+    actionDim_ = nJoints_;
 
-    actionMean_ = actionMean;
-    actionStd_ = actionStd;
+    obDouble_.setZero(obDim_);
 
-    robot_->setPdGains(pGain, dGain);
-}
+    footIndices_.insert(robot_->getBodyIdx("LF_SHANK"));
+    footIndices_.insert(robot_->getBodyIdx("RF_SHANK"));
+    footIndices_.insert(robot_->getBodyIdx("LH_SHANK"));
+    footIndices_.insert(robot_->getBodyIdx("RH_SHANK"));
 
-void WalkerEnv::init()
-{
-    robot_->setState(gcInit_, gvInit_);
-    updateObservation();
+    assert(gcInit_.size() == gcDim_);
+    assert(gvInit_.size() == gvDim_);
+    assert(actionMean_.size() == actionDim_);
+    assert(actionStd_.size() == actionDim_);
+
+    if (visualizable_ & DEBUG)
+    {
+        std::cout << "setInitConstants :gcInit_: " << gcInit_.transpose() << std::endl;
+        std::cout << "setInitConstants :gvInit_: " << gvInit_.transpose() << std::endl;
+        std::cout << "setInitConstants :actionMean_: " << actionMean_.transpose() << std::endl;
+        std::cout << "setInitConstants :actionStd_: " << actionStd_.transpose() << std::endl;
+    }
 }
 
 void WalkerEnv::reset()
 {
+    // at reset, all the randomly set variables should be reset.
+    double c_f = 0.7 + envval(EnvParams::NOISE_GROND_FRICTION) * 0.3;
+
+    world_->setDefaultMaterial(c_f, 0.0, 0.01);
+    if (visualizable_ & DEBUG)
+    {
+        std::cout << "RESET: gcInit_: " << gcInit_.transpose() << std::endl;
+        std::cout << "RESELT :gvInit_: " << gvInit_.transpose() << std::endl;
+    }
+
     robot_->setState(gcInit_, gvInit_);
+
+    if (visualizable_ & DEBUG)
+    {
+        std::cout << "RESET: gcInit_: " << gcInit_.transpose() << std::endl;
+        std::cout << "RESELT :gvInit_: " << gvInit_.transpose() << std::endl;
+    }
     updateObservation();
+}
+
+// Transform action into PD target, and save statistics.
+std::tuple<Eigen::VectorXd, Eigen::VectorXd> WalkerEnv::handleAction(const Eigen::Ref<EigenVec> &action)
+{
+    Eigen::VectorXd pTargetTail = action.cast<double>();
+    pTargetTail = pTargetTail.cwiseProduct(actionStd_);
+    pTargetTail += actionMean_;
+    Eigen::VectorXd pTarget, dTarget;
+    pTarget.setZero(gcDim_);
+    dTarget.setZero(gvDim_);
+    pTarget.tail(nJoints_) = pTargetTail;
+    return std::make_tuple(pTarget, dTarget);
 }
 
 float WalkerEnv::step(const Eigen::Ref<EigenVec> &action)
 {
+    // It takes small time for action to be applied to the robot.
 
-    Eigen::VectorXd pTargetTail = action.cast<double>();
-    pTargetTail = pTargetTail.cwiseProduct(actionStd_);
-    pTargetTail += actionMean_;
-    pTarget_.tail(nJoints_) = pTargetTail;
-
-    robot_->setPdTarget(pTarget_, vTarget_);
+    int nSubSteps = int(control_dt_ / simulation_dt_ + 1e-10);
+    int happening_step = 0;
+    // power distribution of happening step
+    std::discrete_distribution<int> dist({0.1, 0.2, 0.3, 0.4});
+    happening_step = dist(gen_);
 
     for (int i = 0; i < int(control_dt_ / simulation_dt_ + 1e-10); i++)
     {
         if (server_)
             server_->lockVisualizationServerMutex();
+
+        simulateJointFriction();
+
         world_->integrate();
+
+        if (i == happening_step)
+        {
+            auto [pTarget, dTarget] = handleAction(action);
+            robot_->setPdTarget(pTarget, dTarget);
+        }
+
         if (server_)
             server_->unlockVisualizationServerMutex();
     }
@@ -152,6 +211,17 @@ void WalkerEnv::updateObservation()
         gc_.tail(nJoints_),              /// joint angles
         bodyLinearVel_, bodyAngularVel_, /// body linear&angular velocity
         gv_.tail(nJoints_);              /// joint velocity
+    if (visualizable_ & DEBUG)
+    {
+        std::cout << "gc[2]: " << gc_[2] << std::endl;
+        std::cout << "rot.e().row(2).transpose(): " << rot.e().row(2).transpose() << std::endl;
+        std::cout << "gc_.tail(nJoints_): " << gc_.tail(nJoints_) << std::endl;
+        std::cout << "bodyLinearVel_: " << bodyLinearVel_ << std::endl;
+        std::cout << "bodyAngularVel_: " << bodyAngularVel_ << std::endl;
+        std::cout << "gv_.tail(nJoints_): " << gv_.tail(nJoints_) << std::endl;
+    }
+    // noise
+    obDouble_ += obDouble_.cwiseProduct(Eigen::VectorXd::Random(obDouble_.size()) * 0.05 * envval(EnvParams::NOISE_OBSERVATION));
 }
 
 void WalkerEnv::observe(Eigen::Ref<EigenVec> ob)
