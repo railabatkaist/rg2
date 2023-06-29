@@ -67,17 +67,17 @@ struct WalkerEnvConfig
     dGain = config["dGain"].cast<float>();
     envParams = config["envParams"].cast<std::vector<double>>();
 
-    // print all
-    std::cout << "resourceDir: " << resourceDir << std::endl;
-    std::cout << "gcInit: " << gcInit.transpose() << std::endl;
-    std::cout << "gvInit: " << gvInit.transpose() << std::endl;
-    std::cout << "actionMean: " << actionMean.transpose() << std::endl;
-    std::cout << "actionStd: " << actionStd.transpose() << std::endl;
-    std::cout << "pGain: " << pGain << std::endl;
-    std::cout << "dGain: " << dGain << std::endl;
-    std::cout << "envParams: " << std::endl;
-    for (auto &i : envParams)
-      std::cout << i << " ";
+    // // print all
+    // std::cout << "resourceDir: " << resourceDir << std::endl;
+    // std::cout << "gcInit: " << gcInit.transpose() << std::endl;
+    // std::cout << "gvInit: " << gvInit.transpose() << std::endl;
+    // std::cout << "actionMean: " << actionMean.transpose() << std::endl;
+    // std::cout << "actionStd: " << actionStd.transpose() << std::endl;
+    // std::cout << "pGain: " << pGain << std::endl;
+    // std::cout << "dGain: " << dGain << std::endl;
+    // std::cout << "envParams: " << std::endl;
+    // for (auto &i : envParams)
+    //   std::cout << i << " ";
 
     assert(envParams.size() == static_cast<int>(EnvParams::SIZE));
   }
@@ -102,6 +102,7 @@ public:
 
     if (visualizable_)
     {
+      VIZDEBUG = true;
       std::cout << "at init, got";
       std::cout << "gcInit: " << gcInit_.transpose() << std::endl;
       std::cout << "gvInit: " << gvInit_.transpose() << std::endl;
@@ -160,7 +161,7 @@ private:
   int gcDim_{0}, gvDim_{0}, nJoints_{0};
   bool visualizable_{false};
 
-  std::unique_ptr<raisim::ArticulatedSystem> robot_;
+  raisim::ArticulatedSystem *robot_{nullptr};
   WalkerEnvConfig config_;
   Eigen::VectorXd gcInit_,
       gvInit_, gc_, gv_;
@@ -180,7 +181,7 @@ private:
   std::string resourceDir_;
 
   int obDim_{0}, actionDim_{0};
-  bool DEBUG = false;
+  bool VIZDEBUG{false};
 
   std::unique_ptr<raisim::RaisimServer> server_;
 };

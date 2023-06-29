@@ -89,9 +89,9 @@ class Rg2UEnv(gym.Env):
             low=-10, high=10, shape=(self.num_acts,), dtype=np.float32
         )
 
-        self._cenv.reset()
         self._cenv.setControlTimeStep(0.01)
         self._cenv.setSimulationTimeStep(0.0025)
+        self._cenv.reset()
 
     def seed(self, seed):
         self._cenv.setSeed(seed)
@@ -112,7 +112,7 @@ class Rg2UEnv(gym.Env):
         actions = actions.reshape(self.num_acts)
 
         reward = self._cenv.step(actions)
-        print(reward)
+        print("ATPYTHON", reward)
         terminal_reward = 0.0
         done = self._cenv.isTerminalState(terminal_reward)
         _observation = np.zeros([self.num_obs, 1], dtype=np.float32)
@@ -166,7 +166,7 @@ class WebRgUEnv(Rg2UEnv):
             action_mean=ANYMAL_NOMINAL_STATE[-12:],
             action_std=[0.3] * 12,
             p_gain=50,
-            d_gain=0.5,
+            d_gain=0.2,
             env_params=[-1, -1, -1, -1, -1, -1],
         ).get_cpp_object()
 

@@ -44,7 +44,7 @@ WalkerEnv::~WalkerEnv()
 void WalkerEnv::createWorldAndRobot()
 {
     world_ = std::make_unique<raisim::World>();
-    robot_ = std::make_unique<raisim::ArticulatedSystem>(resourceDir_);
+    robot_ = world_->addArticulatedSystem(resourceDir_);
     robot_->setName("robot");
     robot_->setControlMode(raisim::ControlMode::PD_PLUS_FEEDFORWARD_TORQUE);
     world_->addGround();
@@ -52,23 +52,7 @@ void WalkerEnv::createWorldAndRobot()
     gvDim_ = robot_->getDOF();
     nJoints_ = gvDim_ - 6;
     gc_.setZero(gcDim_);
-    // gcInit_.setZero(gcDim_);
     gv_.setZero(gvDim_);
-    // gvInit_.setZero(gvDim_);
-
-    // if (visualizable_ & DEBUG)
-    // {
-    //     // print out info
-    //     std::cout << "gcDim: " << gcDim_ << std::endl;
-    //     std::cout << "gvDim: " << gvDim_ << std::endl;
-    //     std::cout << "nJoints: " << nJoints_ << std::endl;
-    //     std::cout << "gcInit: " << gcInit_.transpose() << std::endl;
-    //     std::cout << "gvInit: " << gvInit_.transpose() << std::endl;
-    //     std::cout << "gc: " << gc_.transpose() << std::endl;
-    //     std::cout << "gv: " << gv_.transpose() << std::endl;
-    // }
-
-    // gcInit_ << 0, 0, 0.50, 1.0, 0.0, 0.0, 0.0, 0.03, 0.4, -0.8, -0.03, 0.4, -0.8, 0.03, -0.4, 0.8, -0.03, -0.4, 0.8;
 }
 
 void WalkerEnv::setPdGains(float pGain, float dGain)
@@ -80,8 +64,14 @@ void WalkerEnv::setPdGains(float pGain, float dGain)
     jointDgain.tail(nJoints_).setConstant(dGain);
 
     // noise
-    jointPgain.tail(nJoints_) += jointPgain.tail(nJoints_).cwiseProduct(Eigen::VectorXd::Random(nJoints_) * 0.05 * envval(EnvParams::NOISE_PD_CONTROLLER_GAIN));
-    jointDgain.tail(nJoints_) += jointDgain.tail(nJoints_).cwiseProduct(Eigen::VectorXd::Random(nJoints_) * 0.05 * envval(EnvParams::NOISE_PD_CONTROLLER_GAIN));
+    jointPgain.tail(nJoints_) += jointPgain.tail(nJoints_).cwiseProduct(Eigen::VectorXd::Random(nJoints_) * 0.05 * (envval(EnvParams::NOISE_PD_CONTROLLER_GAIN) + 1));
+    jointDgain.tail(nJoints_) += jointDgain.tail(nJoints_).cwiseProduct(Eigen::VectorXd::Random(nJoints_) * 0.05 * (envval(EnvParams::NOISE_PD_CONTROLLER_GAIN) + 1));
+
+    if (VIZDEBUG)
+    {
+        std::cout << "At SetPDGAIN jointPgain: " << jointPgain.transpose() << std::endl;
+        std::cout << "At SetPDGAIN jointDgain: " << jointDgain.transpose() << std::endl;
+    }
 
     robot_->setPdGains(jointPgain, jointDgain);
     robot_->setGeneralizedForce(Eigen::VectorXd::Zero(gvDim_));
@@ -92,7 +82,7 @@ void WalkerEnv::initializeVisualization()
     std::cout << "Starting visualization thread..." << std::endl;
     server_ = std::make_unique<raisim::RaisimServer>(world_.get());
     server_->launchServer();
-    server_->focusOn(robot_.get());
+    server_->focusOn(robot_);
 }
 
 void WalkerEnv::setInitConstants()
@@ -113,7 +103,7 @@ void WalkerEnv::setInitConstants()
     assert(actionMean_.size() == actionDim_);
     assert(actionStd_.size() == actionDim_);
 
-    if (visualizable_ & DEBUG)
+    if (VIZDEBUG)
     {
         std::cout << "setInitConstants :gcInit_: " << gcInit_.transpose() << std::endl;
         std::cout << "setInitConstants :gvInit_: " << gvInit_.transpose() << std::endl;
@@ -128,7 +118,7 @@ void WalkerEnv::reset()
     double c_f = 0.7 + envval(EnvParams::NOISE_GROND_FRICTION) * 0.3;
 
     world_->setDefaultMaterial(c_f, 0.0, 0.01);
-    if (visualizable_ & DEBUG)
+    if (VIZDEBUG)
     {
         std::cout << "RESET: gcInit_: " << gcInit_.transpose() << std::endl;
         std::cout << "RESELT :gvInit_: " << gvInit_.transpose() << std::endl;
@@ -136,7 +126,7 @@ void WalkerEnv::reset()
 
     robot_->setState(gcInit_, gvInit_);
 
-    if (visualizable_ & DEBUG)
+    if (VIZDEBUG)
     {
         std::cout << "RESET: gcInit_: " << gcInit_.transpose() << std::endl;
         std::cout << "RESELT :gvInit_: " << gvInit_.transpose() << std::endl;
@@ -167,7 +157,7 @@ float WalkerEnv::step(const Eigen::Ref<EigenVec> &action)
     std::discrete_distribution<int> dist({0.1, 0.2, 0.3, 0.4});
     happening_step = dist(gen_);
 
-    for (int i = 0; i < int(control_dt_ / simulation_dt_ + 1e-10); i++)
+    for (int i = 0; i < nSubSteps; i++)
     {
         if (server_)
             server_->lockVisualizationServerMutex();
@@ -179,6 +169,11 @@ float WalkerEnv::step(const Eigen::Ref<EigenVec> &action)
         if (i == happening_step)
         {
             auto [pTarget, dTarget] = handleAction(action);
+            if (VIZDEBUG)
+            {
+                std::cout << "At action: pTarget: " << pTarget.transpose() << std::endl;
+                std::cout << "At action: dTarget: " << dTarget.transpose() << std::endl;
+            }
             robot_->setPdTarget(pTarget, dTarget);
         }
 
@@ -211,14 +206,14 @@ void WalkerEnv::updateObservation()
         gc_.tail(nJoints_),              /// joint angles
         bodyLinearVel_, bodyAngularVel_, /// body linear&angular velocity
         gv_.tail(nJoints_);              /// joint velocity
-    if (visualizable_ & DEBUG)
+    if (VIZDEBUG)
     {
-        std::cout << "gc[2]: " << gc_[2] << std::endl;
-        std::cout << "rot.e().row(2).transpose(): " << rot.e().row(2).transpose() << std::endl;
-        std::cout << "gc_.tail(nJoints_): " << gc_.tail(nJoints_) << std::endl;
-        std::cout << "bodyLinearVel_: " << bodyLinearVel_ << std::endl;
-        std::cout << "bodyAngularVel_: " << bodyAngularVel_ << std::endl;
-        std::cout << "gv_.tail(nJoints_): " << gv_.tail(nJoints_) << std::endl;
+        std::cout << "At Update Obs gc[2]: " << gc_[2] << std::endl;
+        std::cout << "At Update Obs rot.e().row(2).transpose(): " << rot.e().row(2).transpose() << std::endl;
+        std::cout << "At Update Obs gc_.tail(nJoints_): " << gc_.tail(nJoints_).transpose() << std::endl;
+        std::cout << "At Update Obs bodyLinearVel_: " << bodyLinearVel_.transpose() << std::endl;
+        std::cout << "At Update Obs bodyAngularVel_: " << bodyAngularVel_.transpose() << std::endl;
+        std::cout << "At Update Obs gv_.tail(nJoints_): " << gv_.tail(nJoints_).transpose() << std::endl;
     }
     // noise
     obDouble_ += obDouble_.cwiseProduct(Eigen::VectorXd::Random(obDouble_.size()) * 0.05 * envval(EnvParams::NOISE_OBSERVATION));
