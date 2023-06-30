@@ -26,7 +26,7 @@ Eigen::MatrixXd sampleUniform(const Eigen::Index rows, const Eigen::Index cols, 
 
 enum class EnvParams
 {
-  NOISE_ACTION_DELAY = 0,
+  NOISE_ACTION_DELAY = 0, // [-1, 1]
   NOISE_OBSERVATION = 1,
   NOISE_MOTOR_FRICTION = 2,     // [-1, 1]
   NOISE_PD_CONTROLLER_GAIN = 3, // [-1, 1]
@@ -102,7 +102,7 @@ public:
 
     if (visualizable_)
     {
-      VIZDEBUG = true;
+      VIZDEBUG = false;
       std::cout << "at init, got";
       std::cout << "gcInit: " << gcInit_.transpose() << std::endl;
       std::cout << "gvInit: " << gvInit_.transpose() << std::endl;

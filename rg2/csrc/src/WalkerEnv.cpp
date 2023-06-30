@@ -154,8 +154,11 @@ float WalkerEnv::step(const Eigen::Ref<EigenVec> &action)
     int nSubSteps = int(control_dt_ / simulation_dt_ + 1e-10);
     int happening_step = 0;
     // power distribution of happening step
-    std::discrete_distribution<int> dist({0.1, 0.2, 0.3, 0.4});
-    happening_step = dist(gen_);
+    double difficulty = (envval(EnvParams::NOISE_ACTION_DELAY) + 1.0) * 0.2 * (double)nSubSteps;
+    int maxHappeningStep = nSubSteps - 2;
+
+    std::poisson_distribution<int> dist(difficulty);
+    happening_step = std::min(dist(gen_), maxHappeningStep);
 
     for (int i = 0; i < nSubSteps; i++)
     {
@@ -216,7 +219,9 @@ void WalkerEnv::updateObservation()
         std::cout << "At Update Obs gv_.tail(nJoints_): " << gv_.tail(nJoints_).transpose() << std::endl;
     }
     // noise
-    obDouble_ += obDouble_.cwiseProduct(Eigen::VectorXd::Random(obDouble_.size()) * 0.05 * envval(EnvParams::NOISE_OBSERVATION));
+    obDouble_ += obDouble_.cwiseProduct(Eigen::VectorXd::Random(obDouble_.size()) * 0.05 * (envval(EnvParams::NOISE_OBSERVATION) + 1));
+
+    assert(obDouble_.size() == obDim_);
 }
 
 void WalkerEnv::observe(Eigen::Ref<EigenVec> ob)

@@ -79,6 +79,7 @@ class Rg2UEnv(gym.Env):
         self._cenv.setSeed(seed)
 
         self.num_obs = self._cenv.getObDim()
+
         self.num_acts = self._cenv.getActionDim()
 
         self.observation_space = spaces.Box(
@@ -112,7 +113,7 @@ class Rg2UEnv(gym.Env):
         actions = actions.reshape(self.num_acts)
 
         reward = self._cenv.step(actions)
-        print("ATPYTHON", reward)
+
         terminal_reward = 0.0
         done = self._cenv.isTerminalState(terminal_reward)
         _observation = np.zeros([self.num_obs, 1], dtype=np.float32)
@@ -127,7 +128,7 @@ class Rg2UEnv(gym.Env):
 
         self._cenv.observe(_observation)
 
-        return _observation[0]
+        return _observation.flatten()
 
     def close(self):
         self._cenv.close()
