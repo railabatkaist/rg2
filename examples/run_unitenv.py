@@ -17,7 +17,7 @@ if __name__ == "__main__":
 
         return __init
 
-    envs = SubprocVecEnv([make_env(i) for i in range(4)])
+    envs = SubprocVecEnv([make_env(i) for i in range(8)])
     envs = VecNormalize(envs, norm_obs=True, norm_reward=True, clip_obs=10.0)
 
     # envs.env_method("turn_on_visualization", indices=0)
@@ -30,6 +30,6 @@ if __name__ == "__main__":
         save_vecnormalize=True,
     )
 
-    model = PPO("MlpPolicy", envs, verbose=1, batch_size=64, learning_rate=1e-3)
-    # model = SAC.load("logs/rl_model_96000000_steps.zip")
+    model = PPO("MlpPolicy", envs, verbose=1, batch_size=64, learning_rate=2e-4)
+
     model.learn(total_timesteps=100_000_000, callback=checkpoint_callback)

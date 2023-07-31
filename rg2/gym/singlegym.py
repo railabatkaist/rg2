@@ -1,4 +1,5 @@
 # Author : Simo Ryu
+from typing import Optional, List
 
 import numpy as np
 import platform
@@ -143,7 +144,11 @@ class WebRgUEnv(Rg2UEnv):
     }
 
     def __init__(
-        self, env_id: str = "anymal", seed: int = -1, visualizable: bool = False
+        self,
+        env_id: str = "anymal",
+        seed: int = -1,
+        visualizable: bool = False,
+        env_params: Optional[List[float]] = [-1, -1, -1, -1, -1, -1],
     ) -> None:
         # make dir to save urdf and cfg
         os.makedirs("./gym", exist_ok=True)
@@ -168,7 +173,7 @@ class WebRgUEnv(Rg2UEnv):
             action_std=[0.3] * 12,
             p_gain=50,
             d_gain=0.2,
-            env_params=[-1, -1, -1, -1, -1, -1],
+            env_params=env_params,
         ).get_cpp_object()
 
         super().__init__(

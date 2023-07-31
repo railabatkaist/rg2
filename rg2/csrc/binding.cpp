@@ -27,6 +27,5 @@ PYBIND11_MODULE(_rg2, m)
       .def("turnOnVisualization", &WalkerEnv::turnOnVisualization)
       .def("turnOffVisualization", &WalkerEnv::turnOffVisualization)
       .def("stopRecordingVideo", &WalkerEnv::stopRecordingVideo)
-      .def("startRecordingVideo", &WalkerEnv::startRecordingVideo)
-      .def("curriculumUpdate", &WalkerEnv::curriculumUpdate);
+      .def("startRecordingVideo", &WalkerEnv::startRecordingVideo);
 }

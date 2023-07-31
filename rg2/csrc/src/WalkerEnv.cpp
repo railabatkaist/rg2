@@ -76,7 +76,11 @@ void WalkerEnv::setPdGains(float pGain, float dGain)
     robot_->setPdGains(jointPgain, jointDgain);
     robot_->setGeneralizedForce(Eigen::VectorXd::Zero(gvDim_));
 }
-
+// Function to print the error message
+void printAssertionError(const std::string &errorMsg)
+{
+    std::cout << "Assertion failed: " << errorMsg << std::endl;
+}
 void WalkerEnv::initializeVisualization()
 {
     std::cout << "Starting visualization thread..." << std::endl;
@@ -87,22 +91,37 @@ void WalkerEnv::initializeVisualization()
 
 void WalkerEnv::setInitConstants()
 {
-
+    // Calculate obDim_ and actionDim_ based on nJoints_
     obDim_ = 1 + 3 + 3 + 3 + nJoints_ * 2;
     actionDim_ = nJoints_;
 
+    // Initialize obDouble_ with zeros
     obDouble_.setZero(obDim_);
 
+    // Insert foot indices into footIndices_ set
     footIndices_.insert(robot_->getBodyIdx("LF_SHANK"));
     footIndices_.insert(robot_->getBodyIdx("RF_SHANK"));
     footIndices_.insert(robot_->getBodyIdx("LH_SHANK"));
     footIndices_.insert(robot_->getBodyIdx("RH_SHANK"));
 
-    assert(gcInit_.size() == gcDim_);
-    assert(gvInit_.size() == gvDim_);
-    assert(actionMean_.size() == actionDim_);
-    assert(actionStd_.size() == actionDim_);
-
+    // Check sizes and print error messages if assertions fail
+    if (gcInit_.size() != gcDim_)
+    {
+        printAssertionError("Invalid size for gcInit_ vector. Expected size: " + std::to_string(gcDim_) + ", Actual size: " + std::to_string(gcInit_.size()));
+    }
+    if (gvInit_.size() != gvDim_)
+    {
+        printAssertionError("Invalid size for gvInit_ vector. Expected size: " + std::to_string(gvDim_) + ", Actual size: " + std::to_string(gvInit_.size()));
+    }
+    if (actionMean_.size() != actionDim_)
+    {
+        printAssertionError("Invalid size for actionMean_ vector. Expected size: " + std::to_string(actionDim_) + ", Actual size: " + std::to_string(actionMean_.size()));
+    }
+    if (actionStd_.size() != actionDim_)
+    {
+        printAssertionError("Invalid size for actionStd_ vector. Expected size: " + std::to_string(actionDim_) + ", Actual size: " + std::to_string(actionStd_.size()));
+    }
+    // Optional: Print debug information if VIZDEBUG is enabled
     if (VIZDEBUG)
     {
         std::cout << "setInitConstants :gcInit_: " << gcInit_.transpose() << std::endl;
@@ -186,7 +205,7 @@ float WalkerEnv::step(const Eigen::Ref<EigenVec> &action)
     updateObservation();
 
     float re = -4e-5 * robot_->getGeneralizedForce().squaredNorm() +
-               0.3 * std::min(4.0, bodyLinearVel_[0]);
+               0.3 * std::min(4.0, bodyLinearVel_[1]);
 
     return re;
 }
@@ -233,16 +252,18 @@ bool WalkerEnv::isTerminalState(float &terminalReward)
 {
     terminalReward = float(terminalRewardCoeff_);
 
-    /// if the contact body is not feet
-    for (auto &contact : robot_->getContacts())
-        if (footIndices_.find(contact.getlocalBodyIndex()) == footIndices_.end())
-            return true;
+    // /// if the contact body is not feet
+    // for (auto &contact : robot_->getContacts())
+    //     if (footIndices_.find(contact.getlocalBodyIndex()) == footIndices_.end())
+    //         return true;
+
+    const auto baseOri = robot_->getBaseOrientation();
+    if (baseOri[8] < 0.6)
+        return true;
 
     terminalReward = 0.f;
     return false;
 }
-
-void WalkerEnv::curriculumUpdate() {}
 
 void WalkerEnv::setSimulationTimeStep(double dt)
 {

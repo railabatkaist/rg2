@@ -124,7 +124,6 @@ public:
   float step(const Eigen::Ref<EigenVec> &action);
   void observe(Eigen::Ref<EigenVec> ob);
   bool isTerminalState(float &terminalReward);
-  void curriculumUpdate();
 
   void setSimulationTimeStep(double dt);
   void close();
