@@ -5,5 +5,5 @@ rg2.egg-info/
 .vscode
 __pycache__
 stubs
-gym
+gym/anymal
 logs

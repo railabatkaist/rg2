@@ -3,9 +3,13 @@ import rg2.bin._rg2
 import typing
 import numpy
 
-__all__ = ["CWalkerEnv", "CWalkerEnvConfig"]
+__all__ = [
+    "CWalkerEnv",
+    "CWalkerEnvConfig"
+]
 
-class CWalkerEnv:
+
+class CWalkerEnv():
     def __init__(self, arg0: CWalkerEnvConfig, arg1: bool) -> None: ...
     def close(self) -> None: ...
     def getActionDim(self) -> int: ...
@@ -22,7 +26,6 @@ class CWalkerEnv:
     def turnOffVisualization(self) -> None: ...
     def turnOnVisualization(self) -> None: ...
     pass
-
-class CWalkerEnvConfig:
+class CWalkerEnvConfig():
     def __init__(self, arg0: dict) -> None: ...
     pass

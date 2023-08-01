@@ -2,3 +2,4 @@ numpy
 gym>=0.21
 matplotlib
 ruamel.yaml
+requests

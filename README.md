@@ -89,3 +89,8 @@ python3 -m pip install --index-url https://test.pypi.org/simple/ rg2
 - [ ] Documented user friendly installation with pip
 - [ ] Curriculums : pythonic modification on Ground configuration and Domain Randomization
 - [ ] URDF to action-space mapping : pythonically definable actuators configurations
+
+Examples require
+\*stable-baselines3==1.7.0
+
+-
